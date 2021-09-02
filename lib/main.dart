@@ -10,33 +10,35 @@ import 'package:app_projeto/model/user.dart';
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
 
-  _geraLembrete() {
-    Lembrete l1 = Lembrete(12, 'Tarefa 1 fdhjsakluryewqoihfdas',
-        '12/12/2022 13:50', '07/01/2022 01:55');
+  _geraPrimeiros(){
+    User u1 = User(1, 'teste@teste', '123');
+    UserDAO().adicionar(u1);
 
+    Lembrete l1 = Lembrete(12, u1, 'Tarefa 1 fdhjsakluryewqoihfdas',
+    '12/12/2022 13:50', '07/01/2022 01:55');
     LembreteDAO().adicionar(l1);
   }
-
-  _geraUsuario() {
-    User u1 = User(1, 'teste@teste', '123');
-
-    UserDAO().adicionar(u1);
-  }
-
   if (Platform.isAndroid) {
     debugPrint('app no android');
 
-    AwesomeNotifications().initialize('resource://drawable/res_app_icon', [
+    AwesomeNotifications().initialize('resource://drawable/logo', [
       NotificationChannel(
-          channelKey: 'key1',
-          channelName: 'Basic notifications',
-          channelDescription: 'Notification channel for basic tests',
+          channelKey: 'keyCreate',
+          channelName: 'Novos Lembretes',
+          channelDescription: 'Alertas de criar lembrete',
+          defaultColor: Color(0xFF9D50DD),
+          ledColor: Colors.white),
+      NotificationChannel(
+          channelKey: 'keyLembrete',
+          channelName: 'Lembretes',
+          channelDescription: 'Alertas de lembretes',
           defaultColor: Color(0xFF9D50DD),
           ledColor: Colors.white)
     ]);
+    
 
-    // _geraLembrete();
-    // _geraUsuario();
+
+    // _geraPrimeiros();
     
     runApp(AppAlarme());
   } else if (Platform.isIOS) {

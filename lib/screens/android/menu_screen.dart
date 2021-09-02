@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:app_projeto/database/lembrete_db.dart';
 import 'package:app_projeto/database/user_db.dart';
 import 'package:app_projeto/model/user.dart';
+import 'package:app_projeto/screens/android/login/login_screen.dart';
 import 'package:app_projeto/screens/user/user_add.dart';
 import 'package:app_projeto/screens/lembrete/lembrete_add.dart';
 import 'package:app_projeto/model/lembrete.dart';
@@ -11,11 +12,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:location/location.dart';
 
-
-
 class Menu extends StatefulWidget {
   User user;
-  Menu({User user}){
+  Menu({User user}) {
     this.user = user;
   }
   @override
@@ -25,7 +24,6 @@ class Menu extends StatefulWidget {
 class _MenuState extends State<Menu> {
   @override
   Widget build(BuildContext context) {
-  
     //List<Lembrete> _lembretes = LembreteDAO.listarLembretes;
 
     return Scaffold(
@@ -57,24 +55,25 @@ class _MenuState extends State<Menu> {
                 textAlign: TextAlign.center,
               ),
             ),
-            ListTile(
-                leading: Icon(Icons.history),
-                title: Text(
-                  'Lembretes Antigos',
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                }),
+            
             ListTile(
                 leading: Icon(Icons.settings),
                 title: Text('Configurações'),
-                onTap: (){
+                onTap: () {
                   User logado = widget.user;
                   Navigator.of(context)
-                    .push(MaterialPageRoute(
-                        builder: (context) => UserScreen(user: logado)))
-                    .then((value) {});
-                  
+                      .push(MaterialPageRoute(
+                          builder: (context) => UserScreen(user: logado)))
+                      .then((value) {});
+                }),
+            ListTile(
+                leading: Icon(Icons.logout),
+                title: Text('Logout'),
+                onTap: () {
+                  Navigator.of(context)
+                      .push(
+                          MaterialPageRoute(builder: (context) => LoginPage()))
+                      .then((value) {});
                 })
           ],
         ),
@@ -98,15 +97,18 @@ class _MenuState extends State<Menu> {
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 10),
               color: Colors.black87,
-              child: _futureBuilderLembrete(),
+              child: _futureBuilderLembrete(widget.user),
             ),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
+          debugPrint(widget.user.toString());
           Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => LembreteScreen()))
+              .push(MaterialPageRoute(
+                  builder: (context) =>
+                      LembreteScreen(lembrete: null, user: widget.user)))
               .then((value) {
             setState(() {
               AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
@@ -146,10 +148,10 @@ Widget _fotoAvatar(BuildContext context) {
 }
 
 List<Lembrete> _list = [];
-Widget _futureBuilderLembrete() {
+Widget _futureBuilderLembrete(User user) {
   return FutureBuilder<List<Lembrete>>(
     initialData: _list,
-    future: LembreteDAO().getLembretes(),
+    future: LembreteDAO().getLembretes(user),
     builder: (context, snapshot) {
       switch (snapshot.connectionState) {
         case ConnectionState.none:
@@ -172,7 +174,8 @@ Widget _futureBuilderLembrete() {
               return ItemLembrete(l, onClick: () {
                 Navigator.of(context)
                     .push(MaterialPageRoute(
-                        builder: (context) => LembreteScreen(lembrete: l)))
+                        builder: (context) =>
+                            LembreteScreen(lembrete: l, user: user)))
                     .then((value) {});
               }, onTapDelete: () {
                 LembreteDAO().deletar(l);
@@ -187,7 +190,7 @@ Widget _futureBuilderLembrete() {
   );
 }
 
-class ItemLembrete extends StatelessWidget {
+class ItemLembrete extends StatefulWidget {
   final Lembrete _lembrete;
   final Function onClick;
   final Function onTapDelete;
@@ -195,9 +198,14 @@ class ItemLembrete extends StatelessWidget {
   ItemLembrete(this._lembrete,
       {@required this.onClick, @required this.onTapDelete});
 
+  @override
+  _ItemLembreteState createState() => _ItemLembreteState();
+}
+
+class _ItemLembreteState extends State<ItemLembrete> {
   Widget _leadingLembrete() {
     DateTime dataHoraInicio =
-        DateFormat('MM/dd/yyyy HH:mm').parse(this._lembrete.datahora);
+        DateFormat('MM/dd/yyyy HH:mm').parse(this.widget._lembrete.datahora);
     // DateTime dataHoraFim = DateFormat('MM/dd/yyyy HH:mm').parse(this._lembrete.datafim);
     return Row(
       children: [
@@ -234,7 +242,7 @@ class ItemLembrete extends StatelessWidget {
     );
   }
 
-  Widget _trailingLembrete() {
+  Widget _trailingLembrete(BuildContext context) {
     return TextButton(
       style: TextButton.styleFrom(
         shape: CircleBorder(),
@@ -249,8 +257,8 @@ class ItemLembrete extends StatelessWidget {
             //       colors: [Color(0xFFC850C0), Color(0xFF4158D0)],),
           ),
           child: Icon(Icons.delete, color: Colors.white)),
-      onPressed: () async {
-        this.onTapDelete();
+      onPressed: () {
+        _showAlertDialog(context);
       },
     );
   }
@@ -285,7 +293,7 @@ class ItemLembrete extends StatelessWidget {
                                 .requestPermissionToSendNotifications();
                           }
                         });
-                        this.onClick();
+                        this.widget.onClick();
                       },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -298,7 +306,7 @@ class ItemLembrete extends StatelessWidget {
                               child: Container(
                                 width: MediaQuery.of(context).size.width * 0.4,
                                 child: Text(
-                                  this._lembrete.nome,
+                                  this.widget._lembrete.nome,
                                   style: TextStyle(
                                       color: Colors.white, fontSize: 28),
                                 ),
@@ -310,7 +318,7 @@ class ItemLembrete extends StatelessWidget {
                       ),
                     ),
                   ),
-                  _trailingLembrete(),
+                  _trailingLembrete(context),
                 ]),
           ),
         ),
@@ -325,5 +333,40 @@ class ItemLembrete extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  void _showAlertDialog(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            backgroundColor: Color.fromRGBO(45, 45, 45, 0.9),
+            title:
+                Text('Deletar Lembrete', style: TextStyle(color: Colors.white)),
+            content: Text('Deseja mesmo excluir o lembrete?',
+                style: TextStyle(color: Colors.white)),
+            actions: [
+              ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('Não'),
+                  style: ElevatedButton.styleFrom(
+                    elevation: 5,
+                    primary: Color.fromRGBO(111, 0, 173, 1),
+                  )),
+              ElevatedButton(
+                  onPressed: () {
+                    this.widget.onTapDelete();
+                    Navigator.of(context).pop(true);
+                  },
+                  child: Text('Sim'),
+                  style: ElevatedButton.styleFrom(
+                    elevation: 5,
+                    primary: Color.fromRGBO(111, 0, 173, 1),
+                  ))
+            ],
+          );
+        });
   }
 }

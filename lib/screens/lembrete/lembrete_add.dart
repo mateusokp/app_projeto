@@ -1,15 +1,18 @@
+import 'package:app_projeto/model/user.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:app_projeto/model/lembrete.dart';
 import 'package:app_projeto/database/lembrete_db.dart';
 import 'package:location/location.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
-import 'package:place_picker/place_picker.dart'; 
+import 'package:place_picker/place_picker.dart';
 
 class LembreteScreen extends StatefulWidget {
   int index;
   Lembrete lembrete;
-  LembreteScreen({Lembrete lembrete}) {
+  User user;
+  LembreteScreen({Lembrete lembrete, User user}) {
+    this.user = user;
     if (lembrete == null) {
       this.index = -1;
     } else {
@@ -26,7 +29,7 @@ class _LembreteScreenState extends State<LembreteScreen> {
   final TextEditingController _nomeController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
-
+  User _user;
   Lembrete _lembrete;
   bool _isUpdate = false;
 
@@ -34,7 +37,7 @@ class _LembreteScreenState extends State<LembreteScreen> {
   Widget build(BuildContext context) {
     if (widget.index >= 0 && this._isUpdate == false) {
       debugPrint('editar index = ' + widget.index.toString());
-
+      this._user = widget.user;
       this._lembrete = widget.lembrete;
       this._nomeController.text = this._lembrete.nome;
       this._datahora = this._lembrete.datahora;
@@ -170,11 +173,21 @@ class _LembreteScreenState extends State<LembreteScreen> {
                         shadowColor: Colors.white10),
                     onPressed: () {
                       if (_formKey.currentState.validate()) {
+                        debugPrint('olaaaaaaaaaaaaa');
+                        debugPrint(widget.user.toString());
                         Lembrete l = new Lembrete(
                             widget.index,
+                            widget.user,
                             this._nomeController.text,
                             this._datahora,
                             this._local);
+
+                        AwesomeNotifications().createNotification(
+                            content: NotificationContent(
+                                id: l.id,
+                                channelKey: 'key1',
+                                title: l.nome,
+                                body: 'pfv funcione'));
 
                         if (widget.index >= 0) {
                           LembreteDAO().atualizar(l);

@@ -10,7 +10,7 @@ class UserDAO {
   static const String _col_nome = 'nome';
   static const String _col_senha = 'senha';
 
-  static const String sqlTabelaUser = 'CREATE TABLE $_nomeTabela ('
+  static const String sqlTabelaUser = 'CREATE TABLE $_nomeTabela('
       '$_col_id INTEGER PRIMARY KEY, '
       '$_col_nome TEXT, '
       '$_col_senha TEXT)';

@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:app_projeto/database/lembrete_db.dart';
+import 'package:app_projeto/database/user_db.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -22,19 +24,17 @@ class DatabaseHelper {
 
   initDb() async {
     Directory documentDirectory = await getApplicationDocumentsDirectory();
-    String path = join(documentDirectory.path, "main9.db");
+    String path = join(documentDirectory.path, "main66.db");
     var ourDb = await openDatabase(path, version: 1, onCreate: _onCreate);
     return ourDb;
   }
 
   void _onCreate(Database db, int version) async {
-    await db.execute(
-        "CREATE TABLE User(id INTEGER PRIMARY KEY, nome TEXT, senha TEXT)");
-    debugPrint("User table is created");
+    await db.execute(UserDAO.sqlTabelaUser);
+    debugPrint("User table has been created");
 
-    await db.execute(
-        "CREATE TABLE Lembrete(id INTEGER PRIMARY KEY, nome TEXT, datahora TEXT, local TEXT)");
-    debugPrint("Lembrete table is created");
+    await db.execute(LembreteDAO.sqlTabelaLembrete);
+    debugPrint("Lembrete table has been created");
   }
 
 }
