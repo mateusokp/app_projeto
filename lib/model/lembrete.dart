@@ -2,22 +2,20 @@ class Lembrete {
 
   int _id;
   String _datahora;
-  String _datafim;
+  String _local;
   String _nome;
 
-  Lembrete(this._id, this._nome, this._datahora, this._datafim);
+  Lembrete(this._id, this._nome, this._datahora, this._local);
 
   Map<String, dynamic> toMap(){
     return{
-      'id': _id,
+      //'id': _id,
       'nome': _nome,
       'datahora': _datahora,
-      'datafim': _datafim,
+      'local': _local,
     };
   }
-
-
-  set id(int i){
+    set id(int i){
     this._id = i;
   }
   int get id{
@@ -27,17 +25,17 @@ class Lembrete {
   String get nome{
     return this._nome;
   }
-
+  
   String get datahora{
     return this._datahora;
   }
-
-  String get datafim{
-    return this._datafim;
-  }  
+  
+  String get local{
+    return this._local;
+  }
 
   @override
   String toString() {
-    return 'Lembrete{id: $id, nome: $nome, datahora: $datahora, datafim: $datafim}';
+    return 'Paciente{id: $id, nome: $nome, datahora: $datahora, local: $local}';
   }
 }

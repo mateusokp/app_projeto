@@ -1,24 +1,33 @@
 class User {
   int _id;
-  String _username;
-  String _password;
+  String _nome;
+  String _senha;
 
+  User(this._id,this._nome, this._senha);
 
-  User(this._username, this._password);
-
-  User.fromMap(dynamic obj) {
-    this._username = obj['username'];
-    this._password = obj['password'];
+  User.map(dynamic obj){
+    this._id = obj['id'];
+    this._nome = obj['nome'];
+    this._senha = obj['senha'];
   }
 
-  String get username => _username;
-  String get password => _password;
 
-  
-  Map<String, dynamic> toMap() {
-    var map = new Map<String, dynamic>();
-    map["username"] = _username;
-    map["password"] = _password;
-    return map;
+  set id(int i){
+    this._id = i;
+  }
+  int get id => this._id;
+  String get nome => this._nome;
+  String get senha => this._senha;
+
+  Map<String,dynamic> toMap(){ // used when inserting data to the database
+    return <String,dynamic>{
+      //"id" : _id,
+      "nome" : _nome,
+      "senha" : _senha,
+    };
+  }
+    @override
+  String toString() {
+    return 'User{id: $id, nome: $nome}';
   }
 }
